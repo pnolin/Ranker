@@ -1,5 +1,3 @@
-This is a copy of the original `README.md` file created by the `create-react-app` project. I kept it here for reference.
-
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
 Below you will find some information on how to perform common tasks.<br>

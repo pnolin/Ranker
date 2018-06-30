@@ -1,8 +1,14 @@
 import * as React from 'react';
 
+import SelectFileRenderer from './components/select-file/selectFileRenderer';
+
 class App extends React.Component {
   public render() {
-    return <div />;
+    return (
+      <div>
+        <SelectFileRenderer />
+      </div>
+    );
   }
 }
 
