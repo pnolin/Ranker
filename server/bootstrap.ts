@@ -2,7 +2,6 @@ import dotenv from 'dotenv';
 import { createConnection } from 'typeorm';
 
 import logger from './config/logger';
-import Game from './entities/game';
 
 export let bootstrapApp = () => {
   logger.info('Boostrapping the application');
@@ -15,7 +14,6 @@ export let bootstrapApp = () => {
 
   createConnection({
     database: process.env.MYSQL_SCHEMA,
-    entities: [Game],
     host: process.env.MYSQL_HOST,
     password: process.env.MYSQL_PASSWORD,
     port,

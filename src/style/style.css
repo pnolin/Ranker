@@ -3,33 +3,3 @@ body {
   padding: 0;
   font-family: sans-serif;
 }
-#game-list-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-#game-list-wrapper #game-list-games {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-#game-list-wrapper #game-list-games div {
-  margin-bottom: 5px;
-}
-#game-list-wrapper form {
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-}
-#game-list-wrapper form .form-row:last-of-type {
-  display: flex;
-  justify-content: center;
-}
-.form-row {
-  display: flex;
-  justify-content: space-between;
-  margin: 5px;
-}
-.form-row label {
-  margin-right: 5px;
-}
