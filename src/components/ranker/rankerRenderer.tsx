@@ -5,11 +5,12 @@ interface IRankerProps {
 }
 
 interface IRankerState {
-  items: string[];
   first: string;
+  items: string[];
+  max: number;
+  min: number;
+  rankedItems: string[];
   second: string;
-  currentIndex: number;
-  loopDone: number;
 }
 
 class RankerRenderer extends React.Component<IRankerProps, IRankerState> {
@@ -19,19 +20,22 @@ class RankerRenderer extends React.Component<IRankerProps, IRankerState> {
     this.firstSelected = this.firstSelected.bind(this);
     this.secondSelected = this.secondSelected.bind(this);
     this.state = {
-      currentIndex: 0,
       first: items[0],
       items,
-      loopDone: 0,
+      max: items.length - 1,
+      min: 0,
+      rankedItems: Array<string>(),
       second: items[1]
     };
   }
 
   public render() {
-    if (this.state.loopDone === this.state.items.length) {
+    if (this.state.items.length === 0) {
       return (
         <div>
-          {this.state.items.map((item, index) => <div key={index}>{item}</div>)}
+          {this.state.rankedItems.map((item, index) => (
+            <div key={index}>{item}</div>
+          ))}
         </div>
       );
     }
@@ -46,36 +50,98 @@ class RankerRenderer extends React.Component<IRankerProps, IRankerState> {
   }
 
   private firstSelected() {
-    this.updateChoices(this.state.items.slice(0));
+    const items = this.state.items.slice(0);
+    const rankedItems = this.state.rankedItems.slice(0);
+
+    if (rankedItems.length === 0) {
+      rankedItems.push(items[1], items[0]);
+      items.splice(0, 2);
+
+      this.setState({
+        first: items[0],
+        items,
+        max: 1,
+        min: 0,
+        rankedItems,
+        second: rankedItems[1]
+      });
+    } else {
+      const min = rankedItems.indexOf(this.state.second);
+      const max = this.state.max;
+
+      if (min === max) {
+        rankedItems.push(this.state.first);
+        items.splice(0, 1);
+        this.setState({
+          first: items[0],
+          items,
+          max: rankedItems.length - 1,
+          min: 0,
+          rankedItems,
+          second: rankedItems[Math.floor((rankedItems.length - 1) / 2) + 1]
+        });
+      } else {
+        const newSecond = min + (Math.floor((max - min) / 2) + 1);
+
+        if (newSecond === max && this.state.min === max - 1) {
+          rankedItems.splice(max, 0, this.state.first);
+          items.splice(0, 1);
+          this.setState({
+            first: items[0],
+            items,
+            max: rankedItems.length - 1,
+            min: 0,
+            rankedItems,
+            second: rankedItems[Math.floor((rankedItems.length - 1) / 2) + 1]
+          });
+        } else {
+          this.setState({
+            min: rankedItems.indexOf(this.state.second),
+            second: rankedItems[newSecond]
+          });
+        }
+      }
+    }
   }
 
   private secondSelected() {
     const items = this.state.items.slice(0);
-    const temp = items[this.state.currentIndex];
-    items[this.state.currentIndex] = items[this.state.currentIndex + 1];
-    items[this.state.currentIndex + 1] = temp;
-    this.updateChoices(items);
-  }
+    const rankedItems = this.state.rankedItems.slice(0);
 
-  private updateChoices(items: string[]) {
-    const currentIndex = this.state.currentIndex;
-    const loopDone = this.state.loopDone;
-    if (this.state.currentIndex >= items.length - loopDone - 2) {
+    if (rankedItems.length === 0) {
+      rankedItems.push(items[0], items[1]);
+      items.splice(0, 2);
+
       this.setState({
-        currentIndex: 0,
         first: items[0],
         items,
-        loopDone: loopDone + 1,
-        second: items[1]
+        max: 1,
+        min: 0,
+        rankedItems,
+        second: rankedItems[1]
       });
     } else {
-      this.setState({
-        currentIndex: currentIndex + 1,
-        first: items[currentIndex + 1],
-        items,
-        loopDone,
-        second: items[currentIndex + 2]
-      });
+      const min = this.state.min;
+      const max = rankedItems.indexOf(this.state.second);
+
+      if (min === max) {
+        rankedItems.splice(0, 0, this.state.first);
+        items.splice(0, 1);
+        this.setState({
+          first: items[0],
+          items,
+          max: rankedItems.length - 1,
+          min: 0,
+          rankedItems,
+          second: rankedItems[Math.floor((rankedItems.length - 1) / 2) + 1]
+        });
+      } else {
+        const newSecond = min + Math.floor((max - min) / 2);
+        this.setState({
+          max: rankedItems.indexOf(this.state.second),
+          second: rankedItems[newSecond]
+        });
+      }
     }
   }
 }
