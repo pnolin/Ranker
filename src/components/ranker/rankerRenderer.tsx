@@ -5,10 +5,10 @@ interface IRankerProps {
 }
 
 interface IRankerState {
+  comparedItems: string[];
+  comparison: number;
   first: string;
   items: string[];
-  max: number;
-  min: number;
   rankedItems: string[];
   second: string;
 }
@@ -20,10 +20,10 @@ class RankerRenderer extends React.Component<IRankerProps, IRankerState> {
     this.firstSelected = this.firstSelected.bind(this);
     this.secondSelected = this.secondSelected.bind(this);
     this.state = {
+      comparedItems: items.slice(0),
+      comparison: 0,
       first: items[0],
       items,
-      max: items.length - 1,
-      min: 0,
       rankedItems: Array<string>(),
       second: items[1]
     };
@@ -36,6 +36,7 @@ class RankerRenderer extends React.Component<IRankerProps, IRankerState> {
           {this.state.rankedItems.map((item, index) => (
             <div key={index}>{item}</div>
           ))}
+          <span>Number of comparison: {this.state.comparison}</span>
         </div>
       );
     }
@@ -50,99 +51,125 @@ class RankerRenderer extends React.Component<IRankerProps, IRankerState> {
   }
 
   private firstSelected() {
-    const items = this.state.items.slice(0);
-    const rankedItems = this.state.rankedItems.slice(0);
-
-    if (rankedItems.length === 0) {
-      rankedItems.push(items[1], items[0]);
-      items.splice(0, 2);
-
-      this.setState({
-        first: items[0],
-        items,
-        max: 1,
-        min: 0,
-        rankedItems,
-        second: rankedItems[1]
-      });
+    if (this.state.rankedItems.length === 0) {
+      this.firstSelection(this.state.items[0], this.state.items[1]);
     } else {
-      const min = rankedItems.indexOf(this.state.second);
-      const max = this.state.max;
+      if (this.state.comparedItems.length === this.state.rankedItems.length) {
+        const items = this.state.items.slice(0);
+        const rankedItems = this.state.rankedItems.slice(0);
+        const indexOfSecond = rankedItems.indexOf(this.state.second);
 
-      if (min === max) {
-        rankedItems.push(this.state.first);
-        items.splice(0, 1);
-        this.setState({
-          first: items[0],
-          items,
-          max: rankedItems.length - 1,
-          min: 0,
-          rankedItems,
-          second: rankedItems[Math.floor((rankedItems.length - 1) / 2) + 1]
-        });
-      } else {
-        const newSecond = min + (Math.floor((max - min) / 2) + 1);
-
-        if (newSecond === max && this.state.min === max - 1) {
-          rankedItems.splice(max, 0, this.state.first);
+        if (indexOfSecond === this.state.rankedItems.length - 1) {
           items.splice(0, 1);
-          this.setState({
-            first: items[0],
-            items,
-            max: rankedItems.length - 1,
-            min: 0,
-            rankedItems,
-            second: rankedItems[Math.floor((rankedItems.length - 1) / 2) + 1]
-          });
+          rankedItems.push(this.state.first);
+
+          this.resetComparisonState(items, rankedItems);
         } else {
+          const comparedItems = rankedItems.slice(indexOfSecond + 1);
           this.setState({
-            min: rankedItems.indexOf(this.state.second),
-            second: rankedItems[newSecond]
+            comparedItems,
+            second: comparedItems[Math.floor(comparedItems.length / 2)]
+          });
+        }
+      } else {
+        const items = this.state.items.slice(0);
+        let comparedItems = this.state.comparedItems.slice(0);
+        const indexOfSecond = comparedItems.indexOf(this.state.second);
+        const rankedItems = this.state.rankedItems.slice(0);
+
+        if (indexOfSecond === this.state.comparedItems.length - 1) {
+          const indexInRanked = this.state.rankedItems.indexOf(
+            this.state.second
+          );
+          items.splice(0, 1);
+          rankedItems.splice(indexInRanked + 1, 0, this.state.first);
+
+          this.resetComparisonState(items, rankedItems);
+        } else {
+          comparedItems = comparedItems.slice(indexOfSecond + 1);
+          this.setState({
+            comparedItems,
+            second: comparedItems[Math.floor(comparedItems.length / 2)]
           });
         }
       }
     }
+
+    this.setState({ comparison: this.state.comparison + 1 });
   }
 
   private secondSelected() {
+    if (this.state.rankedItems.length === 0) {
+      this.firstSelection(this.state.items[1], this.state.items[0]);
+    } else {
+      if (this.state.comparedItems.length === this.state.rankedItems.length) {
+        const items = this.state.items.slice(0);
+        const rankedItems = this.state.rankedItems.slice(0);
+        const indexOfSecond = rankedItems.indexOf(this.state.second);
+
+        if (indexOfSecond === 0) {
+          items.splice(0, 1);
+          rankedItems.splice(0, 0, this.state.second);
+
+          this.resetComparisonState(items, rankedItems);
+        } else {
+          const comparedItems = rankedItems.slice(0, indexOfSecond);
+          this.setState({
+            comparedItems,
+            second: comparedItems[Math.floor(comparedItems.length / 2)]
+          });
+        }
+      } else {
+        const items = this.state.items.slice(0);
+        let comparedItems = this.state.comparedItems.slice(0);
+        const indexOfSecond = comparedItems.indexOf(this.state.second);
+        const rankedItems = this.state.rankedItems.slice(0);
+
+        if (indexOfSecond === 0) {
+          const indexInRanked = this.state.rankedItems.indexOf(
+            this.state.second
+          );
+          items.splice(0, 1);
+          rankedItems.splice(indexInRanked, 0, this.state.first);
+
+          this.resetComparisonState(items, rankedItems);
+        } else {
+          comparedItems = comparedItems.slice(0, indexOfSecond);
+          this.setState({
+            comparedItems,
+            second: comparedItems[Math.floor(comparedItems.length / 2)]
+          });
+        }
+      }
+    }
+
+    this.setState({ comparison: this.state.comparison + 1 });
+  }
+
+  private firstSelection(selected: string, other: string) {
     const items = this.state.items.slice(0);
     const rankedItems = this.state.rankedItems.slice(0);
 
-    if (rankedItems.length === 0) {
-      rankedItems.push(items[0], items[1]);
-      items.splice(0, 2);
+    rankedItems.push(other, selected);
+    items.splice(0, 2);
 
-      this.setState({
-        first: items[0],
-        items,
-        max: 1,
-        min: 0,
-        rankedItems,
-        second: rankedItems[1]
-      });
-    } else {
-      const min = this.state.min;
-      const max = rankedItems.indexOf(this.state.second);
+    this.setState({
+      comparedItems: rankedItems.slice(0),
+      first: items[0],
+      items,
+      rankedItems,
+      second: rankedItems[1]
+    });
+  }
 
-      if (min === max) {
-        rankedItems.splice(0, 0, this.state.first);
-        items.splice(0, 1);
-        this.setState({
-          first: items[0],
-          items,
-          max: rankedItems.length - 1,
-          min: 0,
-          rankedItems,
-          second: rankedItems[Math.floor((rankedItems.length - 1) / 2) + 1]
-        });
-      } else {
-        const newSecond = min + Math.floor((max - min) / 2);
-        this.setState({
-          max: rankedItems.indexOf(this.state.second),
-          second: rankedItems[newSecond]
-        });
-      }
-    }
+  private resetComparisonState(items: string[], rankedItems: string[]) {
+    this.setState({
+      comparedItems: rankedItems.slice(0),
+      first: items[0],
+      items,
+      rankedItems,
+      second: rankedItems[Math.floor(rankedItems.length / 2)]
+    });
   }
 }
 
