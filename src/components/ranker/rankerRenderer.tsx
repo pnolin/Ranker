@@ -53,46 +53,27 @@ class RankerRenderer extends React.Component<IRankerProps, IRankerState> {
   private firstSelected() {
     if (this.state.rankedItems.length === 0) {
       this.firstSelection(this.state.items[0], this.state.items[1]);
+    }
+
+    const items = this.state.items;
+    const rankedItems = this.state.rankedItems;
+    const indexInRanked = this.state.rankedItems.indexOf(this.state.second);
+
+    if (
+      this.shouldInsert(
+        this.state.comparedItems,
+        this.state.comparedItems.length - 1
+      )
+    ) {
+      items.splice(0, 1);
+      rankedItems.splice(indexInRanked + 1, 0, this.state.first);
+      this.resetComparisonState(items, rankedItems);
     } else {
-      if (this.state.comparedItems.length === this.state.rankedItems.length) {
-        const items = this.state.items.slice(0);
-        const rankedItems = this.state.rankedItems.slice(0);
-        const indexOfSecond = rankedItems.indexOf(this.state.second);
-
-        if (indexOfSecond === this.state.rankedItems.length - 1) {
-          items.splice(0, 1);
-          rankedItems.push(this.state.first);
-
-          this.resetComparisonState(items, rankedItems);
-        } else {
-          const comparedItems = rankedItems.slice(indexOfSecond + 1);
-          this.setState({
-            comparedItems,
-            second: comparedItems[Math.floor(comparedItems.length / 2)]
-          });
-        }
-      } else {
-        const items = this.state.items.slice(0);
-        let comparedItems = this.state.comparedItems.slice(0);
-        const indexOfSecond = comparedItems.indexOf(this.state.second);
-        const rankedItems = this.state.rankedItems.slice(0);
-
-        if (indexOfSecond === this.state.comparedItems.length - 1) {
-          const indexInRanked = this.state.rankedItems.indexOf(
-            this.state.second
-          );
-          items.splice(0, 1);
-          rankedItems.splice(indexInRanked + 1, 0, this.state.first);
-
-          this.resetComparisonState(items, rankedItems);
-        } else {
-          comparedItems = comparedItems.slice(indexOfSecond + 1);
-          this.setState({
-            comparedItems,
-            second: comparedItems[Math.floor(comparedItems.length / 2)]
-          });
-        }
-      }
+      const comparedItems = this.sliceRankedItems(true);
+      this.setState({
+        comparedItems,
+        second: comparedItems[Math.floor(comparedItems.length / 2)]
+      });
     }
 
     this.setState({ comparison: this.state.comparison + 1 });
@@ -102,44 +83,20 @@ class RankerRenderer extends React.Component<IRankerProps, IRankerState> {
     if (this.state.rankedItems.length === 0) {
       this.firstSelection(this.state.items[1], this.state.items[0]);
     } else {
-      if (this.state.comparedItems.length === this.state.rankedItems.length) {
-        const items = this.state.items.slice(0);
-        const rankedItems = this.state.rankedItems.slice(0);
-        const indexOfSecond = rankedItems.indexOf(this.state.second);
+      const items = this.state.items;
+      const rankedItems = this.state.rankedItems;
+      const indexInRanked = this.state.rankedItems.indexOf(this.state.second);
 
-        if (indexOfSecond === 0) {
-          items.splice(0, 1);
-          rankedItems.splice(0, 0, this.state.second);
-
-          this.resetComparisonState(items, rankedItems);
-        } else {
-          const comparedItems = rankedItems.slice(0, indexOfSecond);
-          this.setState({
-            comparedItems,
-            second: comparedItems[Math.floor(comparedItems.length / 2)]
-          });
-        }
+      if (this.shouldInsert(this.state.comparedItems, 0)) {
+        items.splice(0, 1);
+        rankedItems.splice(indexInRanked, 0, this.state.first);
+        this.resetComparisonState(items, rankedItems);
       } else {
-        const items = this.state.items.slice(0);
-        let comparedItems = this.state.comparedItems.slice(0);
-        const indexOfSecond = comparedItems.indexOf(this.state.second);
-        const rankedItems = this.state.rankedItems.slice(0);
-
-        if (indexOfSecond === 0) {
-          const indexInRanked = this.state.rankedItems.indexOf(
-            this.state.second
-          );
-          items.splice(0, 1);
-          rankedItems.splice(indexInRanked, 0, this.state.first);
-
-          this.resetComparisonState(items, rankedItems);
-        } else {
-          comparedItems = comparedItems.slice(0, indexOfSecond);
-          this.setState({
-            comparedItems,
-            second: comparedItems[Math.floor(comparedItems.length / 2)]
-          });
-        }
+        const comparedItems = this.sliceRankedItems(false);
+        this.setState({
+          comparedItems,
+          second: comparedItems[Math.floor(comparedItems.length / 2)]
+        });
       }
     }
 
@@ -160,6 +117,18 @@ class RankerRenderer extends React.Component<IRankerProps, IRankerState> {
       rankedItems,
       second: rankedItems[1]
     });
+  }
+
+  private shouldInsert(listToCheck: string[], bound: number) {
+    return listToCheck.indexOf(this.state.second) === bound;
+  }
+
+  private sliceRankedItems(sliceFromSecond: boolean) {
+    const indexOfSecond = this.state.comparedItems.indexOf(this.state.second);
+    return this.state.comparedItems.slice(
+      sliceFromSecond ? indexOfSecond + 1 : 0,
+      sliceFromSecond ? this.state.comparedItems.length : indexOfSecond
+    );
   }
 
   private resetComparisonState(items: string[], rankedItems: string[]) {
