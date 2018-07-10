@@ -53,27 +53,8 @@ class RankerRenderer extends React.Component<IRankerProps, IRankerState> {
   private firstSelected() {
     if (this.state.rankedItems.length === 0) {
       this.firstSelection(this.state.items[0], this.state.items[1]);
-    }
-
-    const items = this.state.items;
-    const rankedItems = this.state.rankedItems;
-    const indexInRanked = this.state.rankedItems.indexOf(this.state.second);
-
-    if (
-      this.shouldInsert(
-        this.state.comparedItems,
-        this.state.comparedItems.length - 1
-      )
-    ) {
-      items.splice(0, 1);
-      rankedItems.splice(indexInRanked + 1, 0, this.state.first);
-      this.resetComparisonState(items, rankedItems);
     } else {
-      const comparedItems = this.sliceRankedItems(true);
-      this.setState({
-        comparedItems,
-        second: comparedItems[Math.floor(comparedItems.length / 2)]
-      });
+      this.doSelection(this.state.comparedItems.length - 1, true);
     }
 
     this.setState({ comparison: this.state.comparison + 1 });
@@ -83,24 +64,32 @@ class RankerRenderer extends React.Component<IRankerProps, IRankerState> {
     if (this.state.rankedItems.length === 0) {
       this.firstSelection(this.state.items[1], this.state.items[0]);
     } else {
-      const items = this.state.items;
-      const rankedItems = this.state.rankedItems;
-      const indexInRanked = this.state.rankedItems.indexOf(this.state.second);
-
-      if (this.shouldInsert(this.state.comparedItems, 0)) {
-        items.splice(0, 1);
-        rankedItems.splice(indexInRanked, 0, this.state.first);
-        this.resetComparisonState(items, rankedItems);
-      } else {
-        const comparedItems = this.sliceRankedItems(false);
-        this.setState({
-          comparedItems,
-          second: comparedItems[Math.floor(comparedItems.length / 2)]
-        });
-      }
+      this.doSelection(0, false);
     }
 
     this.setState({ comparison: this.state.comparison + 1 });
+  }
+
+  private doSelection(shouldInsertIndex: number, insertAfter: boolean) {
+    const items = this.state.items;
+    const rankedItems = this.state.rankedItems;
+    const indexInRanked = this.state.rankedItems.indexOf(this.state.second);
+
+    if (this.shouldInsert(this.state.comparedItems, shouldInsertIndex)) {
+      items.splice(0, 1);
+      rankedItems.splice(
+        indexInRanked + (insertAfter ? 1 : 0),
+        0,
+        this.state.first
+      );
+      this.resetComparisonState(items, rankedItems);
+    } else {
+      const comparedItems = this.sliceRankedItems(insertAfter);
+      this.setState({
+        comparedItems,
+        second: comparedItems[Math.floor(comparedItems.length / 2)]
+      });
+    }
   }
 
   private firstSelection(selected: string, other: string) {
