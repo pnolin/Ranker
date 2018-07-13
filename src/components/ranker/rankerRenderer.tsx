@@ -33,9 +33,9 @@ class RankerRenderer extends React.Component<IRankerProps, IRankerState> {
     if (this.state.items.length === 0) {
       return (
         <div>
-          {this.state.rankedItems.map((item, index) => (
-            <div key={index}>{item}</div>
-          ))}
+          {this.state.rankedItems
+            .reverse()
+            .map((item, index) => <div key={index}>{item}</div>)}
           <span>Number of comparison: {this.state.comparison}</span>
         </div>
       );
