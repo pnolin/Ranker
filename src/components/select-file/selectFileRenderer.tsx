@@ -1,5 +1,11 @@
 import * as React from 'react';
 
+import MatButton from '@material-ui/core/Button/';
+
+const inputStyle: React.CSSProperties = {
+  display: 'none'
+};
+
 interface ISelectFileProps {
   onFileChanged: ((file: File | null) => void);
 }
@@ -14,11 +20,18 @@ class SelectFileRenderer extends React.Component<ISelectFileProps, {}> {
     return (
       <div>
         <input
+          id="fileSelect"
           type="file"
           accept=".txt"
           multiple={false}
           onChange={this.fileChanged}
+          style={inputStyle}
         />
+        <label htmlFor="fileSelect">
+          <MatButton component="span" variant="contained">
+            Select File
+          </MatButton>
+        </label>
       </div>
     );
   }

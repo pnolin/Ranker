@@ -3,6 +3,9 @@ import * as React from 'react';
 import RankerRenderer from './components/ranker/rankerRenderer';
 import SelectFileRenderer from './components/select-file/selectFileRenderer';
 
+import MatButton from '@material-ui/core/Button/';
+import MatGrid from '@material-ui/core/Grid/';
+
 interface IAppState {
   file: File | null;
   items: string[];
@@ -18,20 +21,38 @@ class App extends React.Component<{}, IAppState> {
   }
 
   public render() {
+    const textAlignCenter: React.CSSProperties = {
+      textAlign: 'center'
+    };
+
     const selectFileRenderer = (
       <SelectFileRenderer onFileChanged={this.onFileChanged} />
     );
-    const rankButton = <button onClick={this.rankClick}>Rank</button>;
+    const rankButton = (
+      <div>
+        <MatButton onClick={this.rankClick} variant="contained">
+          Rank
+        </MatButton>
+      </div>
+    );
     const rankerComponent = <RankerRenderer items={this.state.items} />;
 
     if (this.state.items.length === 0 && this.state.file === null) {
-      return <div>{selectFileRenderer}</div>;
+      return (
+        <MatGrid item={true} xs={12} style={textAlignCenter}>
+          {selectFileRenderer}
+        </MatGrid>
+      );
     } else if (this.state.items.length === 0) {
       return (
-        <div>
-          {selectFileRenderer}
-          {rankButton}
-        </div>
+        <MatGrid container={true} spacing={16}>
+          <MatGrid item={true} xs={12} style={textAlignCenter}>
+            {selectFileRenderer}
+          </MatGrid>
+          <MatGrid item={true} xs={12} style={textAlignCenter}>
+            {rankButton}
+          </MatGrid>
+        </MatGrid>
       );
     } else {
       return <div>{rankerComponent}</div>;
