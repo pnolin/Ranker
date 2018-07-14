@@ -21,10 +21,6 @@ class App extends React.Component<{}, IAppState> {
   }
 
   public render() {
-    const textAlignCenter: React.CSSProperties = {
-      textAlign: 'center'
-    };
-
     const selectFileRenderer = (
       <SelectFileRenderer onFileChanged={this.onFileChanged} />
     );
@@ -39,18 +35,16 @@ class App extends React.Component<{}, IAppState> {
 
     if (this.state.items.length === 0 && this.state.file === null) {
       return (
-        <MatGrid item={true} xs={12} style={textAlignCenter}>
-          {selectFileRenderer}
+        <MatGrid container={true} spacing={16} justify="center">
+          <MatGrid item={true}>{selectFileRenderer}</MatGrid>
         </MatGrid>
       );
     } else if (this.state.items.length === 0) {
       return (
-        <MatGrid container={true} spacing={16}>
-          <MatGrid item={true} xs={12} style={textAlignCenter}>
-            {selectFileRenderer}
-          </MatGrid>
-          <MatGrid item={true} xs={12} style={textAlignCenter}>
-            {rankButton}
+        <MatGrid container={true} spacing={16} justify="center">
+          <MatGrid item={true}>{selectFileRenderer}</MatGrid>
+          <MatGrid container={true} spacing={16} justify="center">
+            <MatGrid item={true}>{rankButton}</MatGrid>
           </MatGrid>
         </MatGrid>
       );

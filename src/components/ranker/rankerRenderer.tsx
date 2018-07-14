@@ -1,5 +1,8 @@
 import * as React from 'react';
 
+import MatButton from '@material-ui/core/Button/';
+import MatGrid from '@material-ui/core/Grid/';
+
 interface IRankerProps {
   items: string[];
 }
@@ -42,11 +45,25 @@ class RankerRenderer extends React.Component<IRankerProps, IRankerState> {
     }
 
     return (
-      <div>
-        <div>Which One Do You Prefer</div>
-        <button onClick={this.firstSelected}>{this.state.first}</button>
-        <button onClick={this.secondSelected}>{this.state.second}</button>
-      </div>
+      <MatGrid container={true} spacing={16} justify="center">
+        <MatGrid item={true}>
+          <div style={{ fontFamily: 'roboto', fontWeight: 500 }}>
+            Which One Do You Prefer
+          </div>
+        </MatGrid>
+        <MatGrid container={true} spacing={16} justify="center">
+          <MatGrid item={true}>
+            <MatButton variant="contained" onClick={this.firstSelected}>
+              {this.state.first}
+            </MatButton>
+          </MatGrid>
+          <MatGrid item={true}>
+            <MatButton variant="contained" onClick={this.secondSelected}>
+              {this.state.second}
+            </MatButton>
+          </MatGrid>
+        </MatGrid>
+      </MatGrid>
     );
   }
 
