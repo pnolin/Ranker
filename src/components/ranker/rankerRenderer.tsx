@@ -1,7 +1,14 @@
 import * as React from 'react';
 
 import MatButton from '@material-ui/core/Button/';
+import MatDivider from '@material-ui/core/Divider';
 import MatGrid from '@material-ui/core/Grid/';
+import MatList from '@material-ui/core/List/';
+import {
+  ListItem,
+  ListItemText,
+  ListSubheader
+} from '../../../node_modules/@material-ui/core';
 
 interface IRankerProps {
   items: string[];
@@ -15,6 +22,20 @@ interface IRankerState {
   rankedItems: string[];
   second: string;
 }
+
+const gridStyle: React.CSSProperties = {
+  maxHeight: '100%'
+};
+
+const listStyle: React.CSSProperties = {
+  maxHeight: '100%',
+  overflowY: 'scroll',
+  paddingTop: 0
+};
+
+const comparisonStyle: React.CSSProperties = {
+  backgroundColor: 'white'
+};
 
 class RankerRenderer extends React.Component<IRankerProps, IRankerState> {
   constructor(props: IRankerProps) {
@@ -35,12 +56,21 @@ class RankerRenderer extends React.Component<IRankerProps, IRankerState> {
   public render() {
     if (this.state.items.length === 0) {
       return (
-        <div>
-          {this.state.rankedItems
-            .reverse()
-            .map((item, index) => <div key={index}>{item}</div>)}
-          <span>Number of comparison: {this.state.comparison}</span>
-        </div>
+        <MatGrid container={true} justify="center" style={gridStyle}>
+          <MatList dense={true} style={listStyle}>
+            <ListSubheader disableSticky={false} style={comparisonStyle}>
+              Number of comparison: {this.state.comparison}
+            </ListSubheader>
+            {this.state.rankedItems.reverse().map((item, index) => (
+              <div>
+                <MatDivider />
+                <ListItem>
+                  <ListItemText key={index}>{item}</ListItemText>
+                </ListItem>
+              </div>
+            ))}
+          </MatList>
+        </MatGrid>
       );
     }
 

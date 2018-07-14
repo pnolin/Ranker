@@ -25,11 +25,9 @@ class App extends React.Component<{}, IAppState> {
       <SelectFileRenderer onFileChanged={this.onFileChanged} />
     );
     const rankButton = (
-      <div>
-        <MatButton onClick={this.rankClick} variant="contained">
-          Rank
-        </MatButton>
-      </div>
+      <MatButton onClick={this.rankClick} variant="contained">
+        Rank
+      </MatButton>
     );
     const rankerComponent = <RankerRenderer items={this.state.items} />;
 
@@ -41,12 +39,14 @@ class App extends React.Component<{}, IAppState> {
       );
     } else if (this.state.items.length === 0) {
       return (
-        <MatGrid container={true} spacing={16} justify="center">
-          <MatGrid item={true}>{selectFileRenderer}</MatGrid>
+        <div>
           <MatGrid container={true} spacing={16} justify="center">
-            <MatGrid item={true}>{rankButton}</MatGrid>
+            <MatGrid item={true}>{selectFileRenderer}</MatGrid>
+            <MatGrid container={true} spacing={16} justify="center">
+              <MatGrid item={true}>{rankButton}</MatGrid>
+            </MatGrid>
           </MatGrid>
-        </MatGrid>
+        </div>
       );
     } else {
       return <div>{rankerComponent}</div>;
