@@ -7,8 +7,11 @@ import MatList from '@material-ui/core/List/';
 import {
   ListItem,
   ListItemText,
-  ListSubheader
+  ListSubheader,
+  Typography
 } from '../../../node_modules/@material-ui/core';
+
+import { saveAs } from 'file-saver';
 
 interface IRankerProps {
   items: string[];
@@ -43,6 +46,7 @@ class RankerRenderer extends React.Component<IRankerProps, IRankerState> {
     const items = props.items.splice(0);
     this.firstSelected = this.firstSelected.bind(this);
     this.secondSelected = this.secondSelected.bind(this);
+    this.exportToFile = this.exportToFile.bind(this);
     this.state = {
       comparedItems: items.slice(0),
       comparison: 0,
@@ -56,12 +60,17 @@ class RankerRenderer extends React.Component<IRankerProps, IRankerState> {
   public render() {
     if (this.state.items.length === 0) {
       return (
-        <MatGrid container={true} justify="center" style={gridStyle}>
+        <MatGrid
+          container={true}
+          justify="center"
+          style={gridStyle}
+          spacing={16}
+        >
           <MatList dense={true} style={listStyle}>
             <ListSubheader disableSticky={false} style={comparisonStyle}>
               Number of comparison: {this.state.comparison}
             </ListSubheader>
-            {this.state.rankedItems.reverse().map((item, index) => (
+            {this.state.rankedItems.map((item, index) => (
               <div>
                 <MatDivider />
                 <ListItem>
@@ -70,6 +79,9 @@ class RankerRenderer extends React.Component<IRankerProps, IRankerState> {
               </div>
             ))}
           </MatList>
+          <MatGrid item={true}>
+            <MatButton onClick={this.exportToFile}>Export to file</MatButton>
+          </MatGrid>
         </MatGrid>
       );
     }
@@ -77,9 +89,7 @@ class RankerRenderer extends React.Component<IRankerProps, IRankerState> {
     return (
       <MatGrid container={true} spacing={16} justify="center">
         <MatGrid item={true}>
-          <div style={{ fontFamily: 'roboto', fontWeight: 500 }}>
-            Which One Do You Prefer
-          </div>
+          <Typography variant="subheading">Which One Do You Prefer</Typography>
         </MatGrid>
         <MatGrid container={true} spacing={16} justify="center">
           <MatGrid item={true}>
@@ -101,7 +111,7 @@ class RankerRenderer extends React.Component<IRankerProps, IRankerState> {
     if (this.state.rankedItems.length === 0) {
       this.firstSelection(this.state.items[0], this.state.items[1]);
     } else {
-      this.doSelection(this.state.comparedItems.length - 1, true);
+      this.doSelection(0, false);
     }
 
     this.setState({ comparison: this.state.comparison + 1 });
@@ -111,10 +121,16 @@ class RankerRenderer extends React.Component<IRankerProps, IRankerState> {
     if (this.state.rankedItems.length === 0) {
       this.firstSelection(this.state.items[1], this.state.items[0]);
     } else {
-      this.doSelection(0, false);
+      this.doSelection(this.state.comparedItems.length - 1, true);
     }
 
     this.setState({ comparison: this.state.comparison + 1 });
+  }
+
+  private exportToFile() {
+    const rankedItems = this.state.rankedItems.map(item => `${item}\n`);
+    const blob = new Blob(rankedItems);
+    saveAs(blob, 'rank.txt');
   }
 
   private doSelection(shouldInsertIndex: number, insertAfter: boolean) {
@@ -143,7 +159,7 @@ class RankerRenderer extends React.Component<IRankerProps, IRankerState> {
     const items = this.state.items.slice(0);
     const rankedItems = this.state.rankedItems.slice(0);
 
-    rankedItems.push(other, selected);
+    rankedItems.push(selected, other);
     items.splice(0, 2);
 
     this.setState({
